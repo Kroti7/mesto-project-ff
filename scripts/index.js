@@ -5,12 +5,12 @@ const cardTemplate = document.querySelector('#card-template').content;
 const cardList = document.querySelector('.places__list');
 
 /* Функция удаления карточки */
-function deleteCard(evt) {
+function deleteCardCallback(evt) {
   const cardToRemove = evt.target.closest('.card');
   cardToRemove.remove();
 }
 
-function createCard(imgName, imgSrc) {
+function createCard(imgName, imgSrc, delFunc) {
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
   const cardTitle = cardElement.querySelector('.card__title');
   const cardImg = cardElement.querySelector('.card__image');
@@ -22,7 +22,7 @@ function createCard(imgName, imgSrc) {
   /* Кнопка удаления карточки */
   const deleteBtn = cardElement.querySelector('.card__delete-button');
   deleteBtn.setAttribute('aria-label', 'Удалить карточку');
-  deleteBtn.addEventListener('click', deleteCard); /* Я не понял как сделать, надеюсь что так 😅 */
+  deleteBtn.addEventListener('click', delFunc);
 
   /* Кнопка лайка */
   const likeBtn = cardElement.querySelector('.card__like-button');
@@ -57,7 +57,7 @@ const imgName = popupCreateCard.querySelector('.popup__input_type_card-name');
 const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
 
 btnAdd.addEventListener('click', function() {
-  const cardToAdd = createCard(imgName.value, imgURL.value);
+  const cardToAdd = createCard(imgName.value, imgURL.value, deleteCardCallback);
   cardList.append(cardToAdd)
 
   imgName.value = '';
@@ -69,6 +69,6 @@ btnAdd.addEventListener('click', function() {
 
 /* Вывод начальных карточек на страницу */
 initialCards.forEach(card => {
-  const cardToAdd = createCard(card.name, card.link);
+  const cardToAdd = createCard(card.name, card.link, deleteCardCallback);
   cardList.append(cardToAdd)
 });
