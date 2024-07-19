@@ -4,41 +4,47 @@ import initialCards from './cards.js';
 const cardTemplate = document.querySelector('#card-template').content;
 const cardList = document.querySelector('.places__list');
 
-function addCard(townName, imgSrc) {
+/* Функция удаления карточки */
+function deleteCard(evt) {
+  const cardToRemove = evt.target.closest('.card');
+  cardToRemove.remove();
+}
+
+function createCard(imgName, imgSrc) {
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
   const cardTitle = cardElement.querySelector('.card__title');
   const cardImg = cardElement.querySelector('.card__image');
 
-  cardTitle.textContent = townName;
+  cardTitle.textContent = imgName;
   cardImg.src = imgSrc;
-  cardImg.alt = 'Фото города (наверное)';
+  cardImg.alt = 'Картинка карточки';
 
   /* Кнопка удаления карточки */
   const deleteBtn = cardElement.querySelector('.card__delete-button');
-  deleteBtn.addEventListener('click', function() {
-    const cardToRemove = deleteBtn.closest('.card');
-    cardToRemove.remove();
-  });
+  deleteBtn.setAttribute('aria-label', 'Удалить карточку');
+  deleteBtn.addEventListener('click', deleteCard); /* Я не понял как сделать, надеюсь что так 😅 */
 
   /* Кнопка лайка */
   const likeBtn = cardElement.querySelector('.card__like-button');
+  likeBtn.setAttribute('aria-label', 'Поставить лайк');
   likeBtn.addEventListener('click', function() {
     likeBtn.classList.toggle('card__like-button_is-active');
   });
 
-  cardList.append(cardElement);
+  return cardElement;
 }
+
 
 /* Логика попапа*/
 const popupCreateCard = document.querySelector('.popup_type_new-card');
-const btnPopup_open = document.querySelector('.profile__add-button');
-const btnPopup_close = document.querySelectorAll('.popup__close');
+const btnOpenPopupCreateCard = document.querySelector('.profile__add-button');
+const btnsClosePopups = document.querySelectorAll('.popup__close');
 
-btnPopup_open.addEventListener('click', function() {
+btnOpenPopupCreateCard.addEventListener('click', function() {
   popupCreateCard.classList.toggle('popup_is-opened');
 });
 
-btnPopup_close.forEach(btn => {
+btnsClosePopups.forEach(btn => {
   btn.addEventListener('click', function() {
     const popupToClose = btn.closest('.popup');
     popupToClose.classList.toggle('popup_is-opened');
@@ -47,13 +53,14 @@ btnPopup_close.forEach(btn => {
 
 /* Кнопка добавления карточки */
 const btnAdd = popupCreateCard.querySelector('.popup__button');
-const townName = popupCreateCard.querySelector('.popup__input_type_card-name');
+const imgName = popupCreateCard.querySelector('.popup__input_type_card-name');
 const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
 
 btnAdd.addEventListener('click', function() {
-  addCard(townName.value, imgURL.value); /* Костыль, чтоб пользователь дал валидный URL для картинки: Боже, пусть пользователь даст только валидный URL, аминь 🙏*/
+  const cardToAdd = createCard(imgName.value, imgURL.value);
+  cardList.append(cardToAdd)
 
-  townName.value = '';
+  imgName.value = '';
   imgURL.value = '';
 
   const popupToClose = btnAdd.closest('.popup');
@@ -62,6 +69,6 @@ btnAdd.addEventListener('click', function() {
 
 /* Вывод начальных карточек на страницу */
 initialCards.forEach(card => {
-  addCard(card.name, card.link);
+  const cardToAdd = createCard(card.name, card.link);
+  cardList.append(cardToAdd)
 });
-/* Спасибо за проверку 💚 */
