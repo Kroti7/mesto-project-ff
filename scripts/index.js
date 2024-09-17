@@ -1,39 +1,9 @@
-import initialCards from './cards.js';
+import initialCards from './cards-default.js';
+import {deleteCardCallback, createCard} from './cards-logic.js';
+import {pressEscToClosePopup, clickOutOfPopup, closeOpenedPopup} from './modual.js';
 
 /* Функция добавления карточки */
-const cardTemplate = document.querySelector('#card-template').content;
 const cardList = document.querySelector('.places__list');
-
-/* Функция удаления карточки */
-function deleteCardCallback(evt) {
-  const cardToRemove = evt.target.closest('.card');
-  cardToRemove.remove();
-}
-
-function createCard(imgName, imgSrc, delFunc) {
-  const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
-  const cardTitle = cardElement.querySelector('.card__title');
-  const cardImg = cardElement.querySelector('.card__image');
-
-  cardTitle.textContent = imgName;
-  cardImg.src = imgSrc;
-  cardImg.alt = 'Картинка карточки';
-
-  /* Кнопка удаления карточки */
-  const deleteBtn = cardElement.querySelector('.card__delete-button');
-  deleteBtn.setAttribute('aria-label', 'Удалить карточку');
-  deleteBtn.addEventListener('click', delFunc);
-
-  /* Кнопка лайка */
-  const likeBtn = cardElement.querySelector('.card__like-button');
-  likeBtn.setAttribute('aria-label', 'Поставить лайк');
-  likeBtn.addEventListener('click', function() {
-    likeBtn.classList.toggle('card__like-button_is-active');
-  });
-
-  return cardElement;
-}
-
 
 /* Логика попапа*/
 const popupCreateCard = document.querySelector('.popup_type_new-card');
@@ -42,19 +12,20 @@ const btnsClosePopups = document.querySelectorAll('.popup__close');
 
 btnOpenPopupCreateCard.addEventListener('click', function() {
   popupCreateCard.classList.toggle('popup_is-opened');
+
+  popupCreateCard.addEventListener('click', clickOutOfPopup, { once: true });
+  document.addEventListener('keydown', pressEscToClosePopup, { once: true });
 });
 
 btnsClosePopups.forEach(btn => {
-  btn.addEventListener('click', function() {
-    const popupToClose = btn.closest('.popup');
-    popupToClose.classList.toggle('popup_is-opened');
-  });
+  btn.addEventListener('click', closeOpenedPopup);
 });
 
 /* Кнопка добавления карточки */
 const btnAdd = popupCreateCard.querySelector('.popup__button');
 const imgName = popupCreateCard.querySelector('.popup__input_type_card-name');
 const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
+
 
 btnAdd.addEventListener('click', function() {
   const cardToAdd = createCard(imgName.value, imgURL.value, deleteCardCallback);
@@ -72,3 +43,41 @@ initialCards.forEach(card => {
   const cardToAdd = createCard(card.name, card.link, deleteCardCallback);
   cardList.append(cardToAdd)
 });
+
+
+/* Редактирование профиля */
+
+const btnEditProfile = document.querySelector('.profile__edit-button');
+const popupEditProfile = document.querySelector('.popup_type_edit');
+
+const profileName = document.querySelector('.profile__title');
+const profileJobDesc = document.querySelector('.profile__description');
+
+const popupEditProfile_nameValue = document.querySelector('.popup__input_type_name');
+const popupEditProfile_jobDesc = document.querySelector('.popup__input_type_description');
+
+btnEditProfile.addEventListener('click', function() {
+  popupEditProfile.classList.toggle('popup_is-opened');
+
+  popupEditProfile_nameValue.value = profileName.textContent;
+  popupEditProfile_jobDesc.value = profileJobDesc.textContent;
+
+  popupEditProfile.addEventListener('click', clickOutOfPopup, { once: true });
+  document.addEventListener('keydown', pressEscToClosePopup, { once: true });  
+});
+
+
+const btnSaveNewProfile = popupEditProfile.querySelector('.popup__button');
+
+btnSaveNewProfile.addEventListener('click', function(event) {
+  profileName.textContent = popupEditProfile_nameValue.value;
+  profileJobDesc.textContent = popupEditProfile_jobDesc.value;
+
+  popupEditProfile.removeEventListener('click', clickOutOfPopup);
+  document.removeEventListener('keydown', pressEscToClosePopup); 
+
+  popupEditProfile.classList.toggle('popup_is-opened');
+  event.preventDefault();
+});
+
+
