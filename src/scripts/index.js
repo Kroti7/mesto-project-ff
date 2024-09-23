@@ -1,3 +1,5 @@
+import '../pages/index.css';
+
 import initialCards from './cards-default.js';
 import {deleteCardCallback, createCard} from './cards-logic.js';
 import {pressEscToClosePopup, clickOutOfPopup, closeOpenedPopup} from './modual.js';
