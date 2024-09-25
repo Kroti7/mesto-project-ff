@@ -1,4 +1,3 @@
-import {pressEscToClosePopup, clickOutOfPopup, closeOpenedPopup} from './modual.js';
 /* Функция удаления карточки */
 
 function deleteCardCallback(evt) {
@@ -7,7 +6,7 @@ function deleteCardCallback(evt) {
 }
 
 
-function createCard(imgName, imgSrc, delFunc) {
+function createCard(imgName, imgSrc, delFunc, cardImgPopupFunc) {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
   const cardTitle = cardElement.querySelector('.card__title');
@@ -18,18 +17,8 @@ function createCard(imgName, imgSrc, delFunc) {
   cardImg.alt = 'Картинка карточки';
 
   /* Открытие картинки */
-  cardImg.addEventListener('click', function() {
-    const cardPopup = document.querySelector('.popup_type_image');
-    cardPopup.classList.toggle('popup_is-opened')
-
-    const cardPopupImg = cardPopup.querySelector('.popup__image');
-    cardPopupImg.src = imgSrc;
-
-    const cardPopupImgTitile = cardPopup.querySelector('.popup__caption');
-    cardPopupImgTitile.textContent = imgName;
-
-    cardPopup.addEventListener('click', clickOutOfPopup, { once: true });
-    document.addEventListener('keydown', pressEscToClosePopup, { once: true });
+  cardImg.addEventListener('click', () => {
+    cardImgPopupFunc(imgSrc, imgName)
   });
 
   /* Кнопка удаления карточки */
@@ -47,4 +36,4 @@ function createCard(imgName, imgSrc, delFunc) {
   return cardElement;
 }
 
-export {deleteCardCallback, createCard, pressEscToClosePopup}
+export {deleteCardCallback, createCard}

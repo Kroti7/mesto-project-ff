@@ -2,9 +2,8 @@ import '../pages/index.css';
 
 import initialCards from './cards-default.js';
 import {deleteCardCallback, createCard} from './cards-logic.js';
-import {pressEscToClosePopup, clickOutOfPopup, closeOpenedPopup} from './modual.js';
+import {openPopup, closePopup} from './modal.js';
 
-/* Функция добавления карточки */
 const cardList = document.querySelector('.places__list');
 
 /* Логика попапа*/
@@ -12,15 +11,44 @@ const popupCreateCard = document.querySelector('.popup_type_new-card');
 const btnOpenPopupCreateCard = document.querySelector('.profile__add-button');
 const btnsClosePopups = document.querySelectorAll('.popup__close');
 
+const closePopupByEsc = function(evt) {
+  if(evt.key === 'Escape') {
+     closePopup(document.querySelector('.popup_is-opened'), clickOutOfPopup, closePopupByEsc);
+  }
+}
+
+const clickOutOfPopup = function(evt) {
+  if (evt.target.classList.contains('popup_is-opened')) {
+    closePopup(document.querySelector('.popup_is-opened'), clickOutOfPopup, closePopupByEsc);
+  }
+}
+
+/* Функция для открытия попапа картинки */
+const openImgPopup = function(imgSrc, imgName) {
+  const cardPopup = document.querySelector('.popup_type_image');
+  cardPopup.classList.toggle('popup_is-opened')
+
+  const cardPopupImg = cardPopup.querySelector('.popup__image');
+  cardPopupImg.src = imgSrc;
+
+  const cardPopupImgTitile = cardPopup.querySelector('.popup__caption');
+  cardPopupImgTitile.textContent = imgName;
+
+  cardPopup.addEventListener('click', clickOutOfPopup, { once: true });
+  document.addEventListener('keydown', closePopupByEsc, { once: true });
+};
+
 btnOpenPopupCreateCard.addEventListener('click', function() {
-  popupCreateCard.classList.toggle('popup_is-opened');
+  openPopup(popupCreateCard);
 
   popupCreateCard.addEventListener('click', clickOutOfPopup, { once: true });
-  document.addEventListener('keydown', pressEscToClosePopup, { once: true });
+  document.addEventListener('keydown', closePopupByEsc, { once: true });
 });
 
 btnsClosePopups.forEach(btn => {
-  btn.addEventListener('click', closeOpenedPopup);
+  btn.addEventListener('click', () => {
+    closePopup(btn.closest('.popup'))
+  });
 });
 
 /* Кнопка добавления карточки */
@@ -30,19 +58,19 @@ const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
 
 
 btnAdd.addEventListener('click', function() {
-  const cardToAdd = createCard(imgName.value, imgURL.value, deleteCardCallback);
-  cardList.append(cardToAdd)
+  const cardToAdd = createCard(imgName.value, imgURL.value, deleteCardCallback, openImgPopup);
+  cardList.prepend(cardToAdd)
 
   imgName.value = '';
   imgURL.value = '';
 
   const popupToClose = btnAdd.closest('.popup');
-  popupToClose.classList.toggle('popup_is-opened');
+  closePopup(popupToClose);
 });
 
 /* Вывод начальных карточек на страницу */
 initialCards.forEach(card => {
-  const cardToAdd = createCard(card.name, card.link, deleteCardCallback);
+  const cardToAdd = createCard(card.name, card.link, deleteCardCallback, openImgPopup);
   cardList.append(cardToAdd)
 });
 
@@ -59,15 +87,14 @@ const popupEditProfile_nameValue = document.querySelector('.popup__input_type_na
 const popupEditProfile_jobDesc = document.querySelector('.popup__input_type_description');
 
 btnEditProfile.addEventListener('click', function() {
-  popupEditProfile.classList.toggle('popup_is-opened');
+  openPopup(popupEditProfile);
 
   popupEditProfile_nameValue.value = profileName.textContent;
   popupEditProfile_jobDesc.value = profileJobDesc.textContent;
 
   popupEditProfile.addEventListener('click', clickOutOfPopup, { once: true });
-  document.addEventListener('keydown', pressEscToClosePopup, { once: true });  
+  document.addEventListener('keydown', closePopupByEsc, { once: true });
 });
-
 
 const btnSaveNewProfile = popupEditProfile.querySelector('.popup__button');
 
@@ -76,10 +103,8 @@ btnSaveNewProfile.addEventListener('click', function(event) {
   profileJobDesc.textContent = popupEditProfile_jobDesc.value;
 
   popupEditProfile.removeEventListener('click', clickOutOfPopup);
-  document.removeEventListener('keydown', pressEscToClosePopup); 
+  document.removeEventListener('keydown', closePopupByEsc); 
 
-  popupEditProfile.classList.toggle('popup_is-opened');
+  closePopup(popupEditProfile);
   event.preventDefault();
 });
-
-
