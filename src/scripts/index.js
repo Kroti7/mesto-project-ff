@@ -3,6 +3,7 @@ import '../pages/index.css';
 import initialCards from './cards-default.js';
 import {deleteCardCallback, createCard} from './cards-logic.js';
 import {openPopup, closePopup} from './modal.js';
+import {enableValidation} from './validation.js';
 
 const cardList = document.querySelector('.places__list');
 
@@ -37,11 +38,12 @@ btnsClosePopups.forEach(btn => {
 });
 
 /* Кнопка добавления карточки */
+const addCardForm = popupCreateCard.querySelector('.popup__form');
 const btnAdd = popupCreateCard.querySelector('.popup__button');
 const imgName = popupCreateCard.querySelector('.popup__input_type_card-name');
 const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
 
-
+/*🟥🟥🟥 Сделать добавление карточки через форму с событием submit 🟥🟥🟥*/
 btnAdd.addEventListener('click', function(evt) {
   evt.preventDefault(); 
   const cardToAdd = createCard(imgName.value, imgURL.value, deleteCardCallback, openImgPopup);
@@ -89,3 +91,14 @@ btnSaveNewProfile.addEventListener('click', function(event) {
 
   closePopup(popupEditProfile);
 });
+
+/* Включение валидации форм */
+
+enableValidation({
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+}); 

@@ -10,14 +10,10 @@ const clickOutOfPopup = function(evt) {
   }
 }
 
-const addEventlistenersToClosePopup = function(popupElement) {
-  popupElement.addEventListener('click', clickOutOfPopup);
-  document.addEventListener('keydown', closePopupByEsc);
-}
-
 const openPopup = function(popupElement) {
   popupElement.classList.add('popup_is-opened');
-  addEventlistenersToClosePopup(popupElement);
+  popupElement.addEventListener('click', clickOutOfPopup);
+  document.addEventListener('keydown', closePopupByEsc);
 };
 
 const closePopup = function(popupElement) {
