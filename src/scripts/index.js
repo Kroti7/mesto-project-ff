@@ -1,9 +1,10 @@
 import '../pages/index.css';
 
 import initialCards from './cards-default.js';
-import {deleteCardCallback, createCard} from './cards-logic.js';
+import {createCard} from './cards-logic.js';
 import {openPopup, closePopup} from './modal.js';
 import {enableValidation} from './validation.js';
+import {deleteCardAPI, getProfile, getCards, updateProfile, addCardAPI, showSaving, catchError, addCardLike, removeCardLike, updateAvatar} from './server-api.js';
 
 const cardList = document.querySelector('.places__list');
 
@@ -25,6 +26,55 @@ const openImgPopup = function(imgSrc, imgName) {
   cardPopupImgTitile.textContent = imgName;
 };
 
+/* Загрузка профиля и добавление карточек */
+const profileElement = document.querySelector('.profile')
+const profileName = profileElement.querySelector('.profile__title');
+const profileJobDesc = profileElement.querySelector('.profile__description');
+const profileImg = profileElement.querySelector('.profile__image');
+
+let userID = '';
+
+Promise.all([getProfile(), getCards()])
+  .then(([profileData, cardsData]) => {
+    profileName.textContent = profileData.name;
+    profileJobDesc.textContent = profileData.about;
+    profileImg.style.backgroundImage = `url(${profileData.avatar})`;
+
+    userID = profileData._id;
+    cardsData.forEach(cardData => {
+      const cardToAdd = createCard(cardData, deleteCardCallback, likeHandler, openImgPopup, userID);
+      cardList.append(cardToAdd);
+    });
+  })
+
+
+/* Функция удаления карточки */
+function deleteCardCallback(evt, cardData) {
+  deleteCardAPI(cardData._id)
+    .then(() => {
+      const cardToRemove = evt.target.closest('.card');
+      cardToRemove.remove();
+    })
+    .catch((err) => {
+      catchError(err)
+    })
+};
+
+/* Функция лайка карточки */
+function likeHandler(likeBtn, cardID, cardLikesCounter) {
+  if (likeBtn.classList.contains('card__like-button_is-active')) {
+    addCardLike(cardID)
+    .then((res) => {
+      cardLikesCounter.textContent = res.likes.length;
+    })
+  } else {
+    removeCardLike(cardID)
+    .then((res) => {
+      cardLikesCounter.textContent = res.likes.length;
+    })
+  }
+}
+
 /* Открытие попапа добавление карточки */
 btnOpenPopupCreateCard.addEventListener('click', function() {
   openPopup(popupCreateCard);
@@ -45,21 +95,25 @@ const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
 
 /*🟥🟥🟥 Сделать добавление карточки через форму с событием submit 🟥🟥🟥*/
 btnAdd.addEventListener('click', function(evt) {
-  evt.preventDefault(); 
-  const cardToAdd = createCard(imgName.value, imgURL.value, deleteCardCallback, openImgPopup);
-  cardList.prepend(cardToAdd);
+  evt.preventDefault();
 
-  imgName.value = '';
-  imgURL.value = '';
+  const cardData = {link: imgURL.value, name: imgName.value};
+  showSaving(true, btnAdd);
+  addCardAPI(cardData.name, cardData.link)
+    .then((uploadedCardData) => {
+      const cardToAdd = createCard(uploadedCardData, deleteCardCallback, likeHandler,openImgPopup, userID);
+      cardList.prepend(cardToAdd);
+    
+      imgName.value = '';
+      imgURL.value = '';
+    
+      const popupToClose = btnAdd.closest('.popup');
+      closePopup(popupToClose);
+    })
+    .finally(() => {
+      showSaving(false, btnAdd);
+    })
 
-  const popupToClose = btnAdd.closest('.popup');
-  closePopup(popupToClose);
-});
-
-/* Вывод начальных карточек на страницу */
-initialCards.forEach(card => {
-  const cardToAdd = createCard(card.name, card.link, deleteCardCallback, openImgPopup);
-  cardList.append(cardToAdd);
 });
 
 
@@ -67,9 +121,6 @@ initialCards.forEach(card => {
 
 const btnEditProfile = document.querySelector('.profile__edit-button');
 const popupEditProfile = document.querySelector('.popup_type_edit');
-
-const profileName = document.querySelector('.profile__title');
-const profileJobDesc = document.querySelector('.profile__description');
 
 const popupEditProfile_nameValue = document.querySelector('.popup__input_type_name');
 const popupEditProfile_jobDesc = document.querySelector('.popup__input_type_description');
@@ -85,11 +136,40 @@ const btnSaveNewProfile = popupEditProfile.querySelector('.popup__button');
 
 btnSaveNewProfile.addEventListener('click', function(event) {
   event.preventDefault();
+  showSaving(true, btnSaveNewProfile);
 
-  profileName.textContent = popupEditProfile_nameValue.value;
-  profileJobDesc.textContent = popupEditProfile_jobDesc.value;
+  updateProfile(popupEditProfile_nameValue.value, popupEditProfile_jobDesc.value)
+    .then(() => {
+      profileName.textContent = popupEditProfile_nameValue.value;
+      profileJobDesc.textContent = popupEditProfile_jobDesc.value;
+      showSaving(false, btnSaveNewProfile);
+    })
+});
 
-  closePopup(popupEditProfile);
+/* Редактирование аватара  */
+// profileImg
+const popupEditProfileAvatar = document.querySelector('.popup_type_upload-avatar');
+const popupEditProfileAvatar_url = popupEditProfileAvatar.querySelector('.popup__input_avatar_url');
+
+profileImg.addEventListener('click', function(event) {
+  openPopup(popupEditProfileAvatar);
+});
+
+const btnUpdateProfileAvatar = popupEditProfileAvatar.querySelector('.popup__button');
+btnUpdateProfileAvatar.addEventListener('click', (event) => {
+  event.preventDefault();
+  showSaving(true, btnUpdateProfileAvatar);
+  
+  updateAvatar(popupEditProfileAvatar_url.value)
+  .then(() => {
+    getProfile()
+    .then((updatedProfile) => {
+      profileImg.style.backgroundImage = `url(${updatedProfile.avatar})`;
+    })
+  })
+  .finally(() => {
+    showSaving(false, btnUpdateProfileAvatar)
+  })
 });
 
 /* Включение валидации форм */

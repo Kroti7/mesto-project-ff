@@ -12,41 +12,53 @@ const config = {
 
 const handleResponse = (res) => {
   if (res.ok) {
-    return res.json;
+    return res.json();
   }
 };
 
+export const catchError = (err) => {
+    console.log(err); // выводим ошибку в консоль
+}
+
+const changeElementText = (element, textContent) => {
+  element.textContent = textContent;
+}
+
+export const showSaving = (isLoading, buttonElement) => {
+  if (isLoading) {
+    changeElementText(buttonElement, 'Сохранение...');
+  } else {
+    changeElementText(buttonElement, 'Сохраннено!');
+    setTimeout(changeElementText, 3000, buttonElement, 'Сохранить')
+  }
+}
+
 /* Загрузка профиля */
 export const getProfile = () => {
-  return fetch(`${config.baseUrl}/users/me`, {
+  return fetch(`${config.baseUrl}users/me`, {
   headers: {
     authorization: config.headers.authorization
   }
   })
   .then(handleResponse)
+  .catch(catchError)
 };
 
   
-/*   .then((profile) => {
-    const profileName = document.querySelector('.profile__title');
-    const profileJobDesc = document.querySelector('.profile__description');
-    const profileAvatar = document.querySelector('.profile__image');
-
-    profileName.textContent = profile.name;
-    profileJobDesc.textContent = profile.about;
-    const profileServerAvatar = profile.avatar
+/* 
     profileAvatar.style.backgroundImage = `url(${profileServerAvatar})`;
-  }); */
+*/
 
 
 /* Получение начальных карточек */
 export const getCards = () => {
-  return fetch(`${config.baseUrl}cards `, {
+  return fetch(`${config.baseUrl}cards`, {
   headers: {
     authorization: config.headers.authorization
   }
   })
   .then(handleResponse)
+  .catch(catchError)
 };
 /* Редактирование профиля */
 
@@ -60,28 +72,20 @@ export const updateProfile = (profileName, profileAbout) => {
     })
   })
   .then(handleResponse)
+  .catch(catchError)
 };
 
-/* btnSaveNewProfile.addEventListener('click', function(event) {
-  event.preventDefault();
-
-  profileName.textContent = popupEditProfile_nameValue.value;
-  profileJobDesc.textContent = popupEditProfile_jobDesc.value;
-
-  fetch('https://nomoreparties.co/v1/pwff-cohort-1/users/me', {
+export const updateAvatar = (avatarURL) => {
+  return fetch(`${config.baseUrl}users/me/avatar`, {
     method: 'PATCH',
-    headers: {
-      authorization: '9d4ca5f6-6a92-4903-9788-6dcae46f4a42',
-      'Content-Type': 'application/json'
-    },
+    headers: config.headers,
     body: JSON.stringify({
-      name: popupEditProfile_nameValue.value,
-      about: popupEditProfile_jobDesc.value
+      avatar: avatarURL,
     })
-  });
-
-  closePopup(popupEditProfile);
-}); */
+  })
+  .then(handleResponse)
+  .catch(catchError)
+}
 
 /* Добавление карточки */
 
@@ -95,6 +99,7 @@ export const addCardAPI = (cardName, cardLink) => {
     })
   })
     .then(handleResponse)
+    .catch(catchError)
 }
 
 /* Ответ сервера при успехе
@@ -117,7 +122,7 @@ export const addCardAPI = (cardName, cardLink) => {
 /* Удаление карточки (нужно пробросить в создание карточки, не забыть сделать логику чтобы только создатель карточек мог их удалять) */
 
 export const deleteCardAPI = (cardID) => {
-  fetch(`${config.baseUrl}${cardID}`, {
+  return fetch(`${config.baseUrl}${cardID}`, {
     method: 'DELETE',
     headers: {
       authorization: config.headers.authorization
@@ -126,15 +131,25 @@ export const deleteCardAPI = (cardID) => {
 }
 
 /* Функция лайка (не забыть сделать верстку карточки) */
-export const cardLikeAPI = (isLiked, cardID) => {
-  if (isLiked) {
-    return fetch(`${config.baseUrl}cards/likes/${cardID}`, {
-      method: 'PUT'
-    })
 
-  } else {
-    return fetch(`${config.baseUrl}cards/likes/${cardID}`, {
-      method: 'DELETE'
-    })
-  }
+export const addCardLike = (cardID) => {
+  return fetch(`${config.baseUrl}cards/likes/${cardID}`, {
+    method: 'PUT',
+    headers: {
+      authorization: config.headers.authorization
+    }
+  })
+  .then(handleResponse)
+  .catch(catchError)
+}
+
+export const removeCardLike = (cardID) => {
+  return fetch(`${config.baseUrl}cards/likes/${cardID}`, {
+    method: 'DELETE',
+    headers: {
+      authorization: config.headers.authorization
+    }
+  })
+  .then(handleResponse)
+  .catch(catchError)
 }
