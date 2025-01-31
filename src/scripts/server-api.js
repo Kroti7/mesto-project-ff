@@ -1,6 +1,3 @@
-/* Токен: 9d4ca5f6-6a92-4903-9788-6dcae46f4a42
-Идентификатор группы: pwff-cohort-1 */
-
 /* Конфиг для API */
 const config = {
   baseUrl: 'https://nomoreparties.co/v1/pwff-cohort-1/',
@@ -107,7 +104,7 @@ export const deleteCardAPI = (cardID) => {
   })
 }
 
-/* Функция лайка*/
+/* Функции лайка */
 export const addCardLike = (cardID) => {
   return fetch(`${config.baseUrl}cards/likes/${cardID}`, {
     method: 'PUT',

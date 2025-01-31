@@ -1,6 +1,6 @@
 import '../pages/index.css';
 
-import initialCards from './cards-default.js';
+// import initialCards from './cards-default.js';
 import {createCard} from './cards-logic.js';
 import {openPopup, closePopup} from './modal.js';
 import {enableValidation} from './validation.js';
@@ -93,7 +93,7 @@ const btnAdd = popupCreateCard.querySelector('.popup__button');
 const imgName = popupCreateCard.querySelector('.popup__input_type_card-name');
 const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
 
-/*🟥🟥🟥 Сделать добавление карточки через форму с событием submit 🟥🟥🟥*/
+/* Добавление карточки */
 btnAdd.addEventListener('click', function(evt) {
   evt.preventDefault();
 
@@ -147,7 +147,6 @@ btnSaveNewProfile.addEventListener('click', function(event) {
 });
 
 /* Редактирование аватара  */
-// profileImg
 const popupEditProfileAvatar = document.querySelector('.popup_type_upload-avatar');
 const popupEditProfileAvatar_url = popupEditProfileAvatar.querySelector('.popup__input_avatar_url');
 
