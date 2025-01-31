@@ -1,5 +1,3 @@
-/* const { forEach } = require("core-js/core/array"); */
-
 const disableButton = (btnElement) => {
   btnElement.setAttribute('disabled', '');
 };
@@ -10,16 +8,27 @@ const enableButton = (btnElement) => {
 
 const showErrorifInvalid = (inputElement, errorElement, btnElement) => {
   if ((inputElement.validity.patternMismatch)) {
-    errorElement.textContent = inputElement.dataset.errorMessage; /* ????? */
-    disableButton(btnElement);
+    errorElement.textContent = inputElement.dataset.errorMessage;
     inputElement.classList.add('popup__input_invalid');
   } else if (!inputElement.validity.valid) {
     errorElement.textContent = inputElement.validationMessage;
     inputElement.classList.add('popup__input_invalid');
-    disableButton(btnElement);
   } else {
     errorElement.textContent = "";
     inputElement.classList.remove('popup__input_invalid');
+  }
+}
+
+const hasInvalidInput = (inputArray) => {
+  return inputArray.some(input => {
+    return !input.validity.valid
+  })
+}
+
+const changeButtonStateIfAllValid = (hasAnyInvalidForm, inputArray, btnElement) => {
+  if (hasAnyInvalidForm(inputArray)) {
+    disableButton(btnElement);
+  } else {
     enableButton(btnElement);
   }
 }
@@ -36,6 +45,7 @@ const addListenersInForm = (formElement, inputClass, btnClass) => {
 
     input.addEventListener('input', () => {
       showErrorifInvalid(input, errorElement, btnElement);
+      changeButtonStateIfAllValid(hasInvalidInput, inputArray, btnElement);
     })
   });
 };
@@ -52,18 +62,3 @@ const enableValidation = (object) => {
 }
 
 export {enableValidation};
-
-
-/* enableValidation({
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
-});  */
-
-/*
-const nameRegex = /[а-яё\- ]{2,40}/i;
-const descriptionRegex = /[а-яё(🟥пробелы символы и пр🟥)]{2,200}/i;
-const pictureUrlRegex = /(?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)\.(?:jpg|jpeg|png|gif|bmp|svg)(?:\?.*)?$/i; */

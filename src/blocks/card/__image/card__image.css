@@ -2,8 +2,18 @@
   height: 282px;
   object-fit: cover;
   width: 100%;
+  transition: 
+    filter 0.15s ease-in-out,
+    transform 0.15s ease-in-out;
 }
 
 .card__image:hover {
   cursor: pointer;
+  filter: 
+    brightness(1.15)
+    contrast(1.05);
+  transform: scale(1.02);
+  transition: 
+    filter 0.3s ease-in,
+    transform 0.3s ease-in;
 }

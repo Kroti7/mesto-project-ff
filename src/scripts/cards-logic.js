@@ -18,8 +18,6 @@ function createCard(cardData, delFunc, likeFunc, cardImgPopupFunc, userID) {
   });
 
   /* Кнопка удаления карточки */
-  const idResult = (userID === cardData.owner._id)
-  console.log(`Результат сравнения: ${idResult} Пользователь:${userID} Создатель:${cardData.owner._id}`);
   if (userID === cardData.owner._id) {
     const deleteBtn = cardElement.querySelector('.card__delete-button');
     deleteBtn.setAttribute('aria-label', 'Удалить карточку');
@@ -38,6 +36,10 @@ function createCard(cardData, delFunc, likeFunc, cardImgPopupFunc, userID) {
     likeFunc(likeBtn, cardData._id, cardLikes);
   });
 
+  if (cardData.likes.some(user => user?._id === userID)) {
+    likeBtn.classList.add('card__like-button_is-active');
+  }
+  
   return cardElement;
 }
 

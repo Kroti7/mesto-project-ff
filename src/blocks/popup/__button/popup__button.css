@@ -12,11 +12,11 @@
   border: none;
   transition: visibility 0s, background 0.3s;
   margin-top: 48px;
+  cursor: pointer;
 }
 
 .popup__button:hover(:not(:disabled)) {
   background: rgba(0, 0, 0, 0.8);
-  cursor: pointer;
 }
 
 @media screen and (max-width: 568px) {
@@ -31,4 +31,5 @@
   border: 1px solid black;
   color: #000;
   opacity: 20%;
+  cursor: default;
 }

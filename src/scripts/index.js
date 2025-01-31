@@ -49,8 +49,8 @@ Promise.all([getProfile(), getCards()])
 
 
 /* Функция удаления карточки */
-function deleteCardCallback(evt, cardData) {
-  deleteCardAPI(cardData._id)
+function deleteCardCallback(evt, cardId) {
+  deleteCardAPI(cardId)
     .then(() => {
       const cardToRemove = evt.target.closest('.card');
       cardToRemove.remove();
