@@ -1,14 +1,14 @@
 /* Показываем ошибку в форме */
-const showErrorifInvalid = (inputElement, errorElement) => {
+const showErrorifInvalid = (inputElement, errorElement, inputInvalidClass) => {
   if ((inputElement.validity.patternMismatch)) {
     errorElement.textContent = inputElement.dataset.errorMessage;
-    inputElement.classList.add('popup__input_invalid');
+    inputElement.classList.add(inputInvalidClass);
   } else if (!inputElement.validity.valid) {
     errorElement.textContent = inputElement.validationMessage;
-    inputElement.classList.add('popup__input_invalid');
+    inputElement.classList.add(inputInvalidClass);
   } else {
     errorElement.textContent = "";
-    inputElement.classList.remove('popup__input_invalid');
+    inputElement.classList.remove(inputInvalidClass);
   }
 }
 
@@ -36,7 +36,7 @@ const changeButtonStateIfAllValid = (hasAnyInvalidForm, inputArray, btnElement) 
 }
 
 /* Добавление валидации при импуте пользователя */
-const addListenersInForm = (formElement, inputClass, btnClass) => {
+const addListenersInForm = (formElement, inputClass, btnClass, invalidClass) => {
   const btnElement = formElement.querySelector(btnClass);
   const inputArray = Array.from(formElement.querySelectorAll(inputClass));
   disableButton(btnElement);
@@ -46,7 +46,7 @@ const addListenersInForm = (formElement, inputClass, btnClass) => {
     const errorElement = formElement.querySelector(`.${inputname}-input-error`);
 
     input.addEventListener('input', () => {
-      showErrorifInvalid(input, errorElement);
+      showErrorifInvalid(input, errorElement, invalidClass);
       changeButtonStateIfAllValid(hasInvalidInput, inputArray, btnElement);
     })
   });
@@ -55,11 +55,12 @@ const addListenersInForm = (formElement, inputClass, btnClass) => {
 const enableValidation = (object) => {
   const formClass = object.formSelector;
   const inputClass = object.inputSelector;
+  const inputInvalidClass = object.invalidClass;
   const btnClass = object.submitButtonSelector;
 
   const formArray = Array.from(document.querySelectorAll(formClass));
   formArray.forEach(form => {
-    addListenersInForm(form, inputClass, btnClass);
+    addListenersInForm(form, inputClass, btnClass, inputInvalidClass);
   })
 }
 

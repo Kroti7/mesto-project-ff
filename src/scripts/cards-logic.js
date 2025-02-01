@@ -32,7 +32,7 @@ function createCard(cardData, delFunc, likeFunc, cardImgPopupFunc, userID) {
   const likeBtn = cardElement.querySelector('.card__like-button');
   likeBtn.setAttribute('aria-label', 'Поставить лайк');
   likeBtn.addEventListener('click', (evt) => {
-    likeBtn.classList.toggle('card__like-button_is-active');
+    // likeBtn.classList.toggle('card__like-button_is-active');
     likeFunc(likeBtn, cardData._id, cardLikes);
   });
 

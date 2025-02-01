@@ -10,13 +10,14 @@
   background: #000;
   border-radius: 2px;
   border: none;
-  transition: visibility 0s, background 0.3s;
+  transition: visibility 0s, background 0.15s;
   margin-top: 48px;
   cursor: pointer;
 }
 
 .popup__button:hover(:not(:disabled)) {
   background: rgba(0, 0, 0, 0.8);
+  transition: background 0.3s;
 }
 
 @media screen and (max-width: 568px) {
@@ -32,4 +33,14 @@
   color: #000;
   opacity: 20%;
   cursor: default;
+}
+
+.popup__button-succes {
+  background-color: #6ccf53;
+  transition: background 0.2s;
+}
+
+.popup__button-fail {
+  background-color: #ca2371;
+  transition: background 0.15s;
 }

@@ -6,7 +6,8 @@ const closePopupByEsc = function(evt) {
 
 const clickOutOfPopup = function(evt) {
   if (evt.target.classList.contains('popup_is-opened')) {
-    closePopup(document.querySelector('.popup_is-opened'));
+    evt.target.classList.remove('popup_is-opened');
+    document.removeEventListener('keydown', closePopupByEsc);
   }
 }
 

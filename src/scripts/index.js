@@ -4,7 +4,7 @@ import '../pages/index.css';
 import {createCard} from './cards-logic.js';
 import {openPopup, closePopup} from './modal.js';
 import {enableValidation} from './validation.js';
-import {deleteCardAPI, getProfile, getCards, updateProfile, addCardAPI, showSaving, catchError, addCardLike, removeCardLike, updateAvatar} from './server-api.js';
+import {deleteCardAPI, getProfile, getCards, updateProfile, addCardAPI, addCardLike, removeCardLike, updateAvatar} from './server-api.js';
 
 const cardList = document.querySelector('.places__list');
 
@@ -15,14 +15,15 @@ const btnsClosePopups = document.querySelectorAll('.popup__close');
 
 
 /* Функция для открытия попапа картинки */
+const cardPopup = document.querySelector('.popup_type_image');
+const cardPopupImg = cardPopup.querySelector('.popup__image');
+const cardPopupImgTitile = cardPopup.querySelector('.popup__caption');
+
 const openImgPopup = function(imgSrc, imgName) {
-  const cardPopup = document.querySelector('.popup_type_image');
   openPopup(cardPopup);
 
-  const cardPopupImg = cardPopup.querySelector('.popup__image');
   cardPopupImg.src = imgSrc;
-
-  const cardPopupImgTitile = cardPopup.querySelector('.popup__caption');
+  cardPopupImg.alt = `Изображение ${imgName}`;
   cardPopupImgTitile.textContent = imgName;
 };
 
@@ -46,31 +47,46 @@ Promise.all([getProfile(), getCards()])
       cardList.append(cardToAdd);
     });
   })
+  .catch((err) => {
+    catchError(err);
+  })
 
 
 /* Функция удаления карточки */
 function deleteCardCallback(evt, cardId) {
   deleteCardAPI(cardId)
-    .then(() => {
-      const cardToRemove = evt.target.closest('.card');
-      cardToRemove.remove();
+    .then((res) => {
+      if (res.ok) {
+        const cardToRemove = evt.target.closest('.card');
+        cardToRemove.remove();
+      } else {
+        return Promise.reject(`Ошибка ${res.status}`);
+      }      
     })
     .catch((err) => {
-      catchError(err)
+      catchError(err);
     })
 };
 
 /* Функция лайка карточки */
 function likeHandler(likeBtn, cardID, cardLikesCounter) {
-  if (likeBtn.classList.contains('card__like-button_is-active')) {
+  if (!likeBtn.classList.contains('card__like-button_is-active')) {
     addCardLike(cardID)
     .then((res) => {
       cardLikesCounter.textContent = res.likes.length;
+      likeBtn.classList.toggle('card__like-button_is-active');
+    })
+    .catch((err) => {
+      console.log(err);
     })
   } else {
     removeCardLike(cardID)
     .then((res) => {
       cardLikesCounter.textContent = res.likes.length;
+      likeBtn.classList.toggle('card__like-button_is-active');
+    })
+    .catch((err) => {
+      console.log(err);
     })
   }
 }
@@ -87,8 +103,44 @@ btnsClosePopups.forEach(btn => {
   });
 });
 
+/* Слишком умная логика для глупой кнопки, чтоб пользователь понимал(и прощал) */
+const changeElementTextColor = (element, textContent, status = "none") => {
+  element.textContent = textContent;
+
+  switch (status.toLowerCase()) {
+    case "none":
+      element.classList.remove('popup__button-succes');
+      element.classList.remove('popup__button-fail');
+      break;
+    case "success":
+      element.classList.add('popup__button-succes');
+      break;
+    case "fail":
+      element.classList.add('popup__button-fail');
+      break;
+  }
+}
+
+const showProgressBtn = (status, buttonElement) => {
+  switch (status.toLowerCase()) {
+    case "loading":  
+      changeElementTextColor(buttonElement, 'Сохранение...');
+      buttonElement.style.cursor = 'progress';  
+      break;
+    case "success":
+      buttonElement.style.cursor = null; 
+      changeElementTextColor(buttonElement, 'Сохранено!', "success");
+      setTimeout(changeElementTextColor, 3000, buttonElement, 'Сохранить')
+      break;
+    case "fail":
+      buttonElement.style.cursor = null; 
+      changeElementTextColor(buttonElement, 'Ошибка! :С', "fail");
+      setTimeout(changeElementTextColor, 3000, buttonElement, 'Сохранить')
+      break;
+  }
+}
+
 /* Кнопка добавления карточки */
-const addCardForm = popupCreateCard.querySelector('.popup__form');
 const btnAdd = popupCreateCard.querySelector('.popup__button');
 const imgName = popupCreateCard.querySelector('.popup__input_type_card-name');
 const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
@@ -98,7 +150,7 @@ btnAdd.addEventListener('click', function(evt) {
   evt.preventDefault();
 
   const cardData = {link: imgURL.value, name: imgName.value};
-  showSaving(true, btnAdd);
+  showProgressBtn("loading", btnAdd);
   addCardAPI(cardData.name, cardData.link)
     .then((uploadedCardData) => {
       const cardToAdd = createCard(uploadedCardData, deleteCardCallback, likeHandler,openImgPopup, userID);
@@ -108,12 +160,13 @@ btnAdd.addEventListener('click', function(evt) {
       imgURL.value = '';
     
       const popupToClose = btnAdd.closest('.popup');
-      closePopup(popupToClose);
+      showProgressBtn("success", btnAdd);
+      setTimeout(closePopup, 1500, popupToClose);
     })
-    .finally(() => {
-      showSaving(false, btnAdd);
+    .catch((err) => {
+      console.log(err);
+      showProgressBtn("fail", btnAdd);
     })
-
 });
 
 
@@ -136,14 +189,19 @@ const btnSaveNewProfile = popupEditProfile.querySelector('.popup__button');
 
 btnSaveNewProfile.addEventListener('click', function(event) {
   event.preventDefault();
-  showSaving(true, btnSaveNewProfile);
+  showProgressBtn("loading", btnSaveNewProfile);
 
   updateProfile(popupEditProfile_nameValue.value, popupEditProfile_jobDesc.value)
     .then(() => {
       profileName.textContent = popupEditProfile_nameValue.value;
       profileJobDesc.textContent = popupEditProfile_jobDesc.value;
-      showSaving(false, btnSaveNewProfile);
+      showProgressBtn("success", btnSaveNewProfile);
     })
+    .catch((err) => {
+      console.log(err);
+      showProgressBtn("fail", btnSaveNewProfile);
+    })
+
 });
 
 /* Редактирование аватара  */
@@ -157,18 +215,21 @@ profileImg.addEventListener('click', function(event) {
 const btnUpdateProfileAvatar = popupEditProfileAvatar.querySelector('.popup__button');
 btnUpdateProfileAvatar.addEventListener('click', (event) => {
   event.preventDefault();
-  showSaving(true, btnUpdateProfileAvatar);
+  showProgressBtn("loading", btnUpdateProfileAvatar);
   
   updateAvatar(popupEditProfileAvatar_url.value)
   .then(() => {
     getProfile()
     .then((updatedProfile) => {
       profileImg.style.backgroundImage = `url(${updatedProfile.avatar})`;
+      showProgressBtn("success", btnUpdateProfileAvatar);
     })
   })
-  .finally(() => {
-    showSaving(false, btnUpdateProfileAvatar)
+  .catch((err) => {
+    console.log(err);
+    showProgressBtn("fail", btnUpdateProfileAvatar);
   })
+
 });
 
 /* Включение валидации форм */
@@ -179,5 +240,6 @@ enableValidation({
   submitButtonSelector: '.popup__button',
   inactiveButtonClass: 'popup__button_disabled',
   inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
+  errorClass: 'popup__error_visible',
+  invalidClass: 'popup__input_invalid'
 }); 

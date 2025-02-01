@@ -11,26 +11,8 @@ const handleResponse = (res) => {
   if (res.ok) {
     return res.json();
   }
+  return Promise.reject(`Ошибка ${res.status}`);
 };
-
-export const catchError = (err) => {
-    console.log(err);
-}
-
-const changeElementText = (element, textContent) => {
-  element.textContent = textContent;
-}
-
-export const showSaving = (isLoading, buttonElement) => {
-  if (isLoading) {
-    changeElementText(buttonElement, 'Сохранение...');
-    buttonElement.style.cursor = 'progress';
-  } else {
-    buttonElement.style.cursor = null;
-    changeElementText(buttonElement, 'Сохраннено!');
-    setTimeout(changeElementText, 3000, buttonElement, 'Сохранить')
-  }
-}
 
 /* Загрузка профиля */
 export const getProfile = () => {
@@ -40,7 +22,6 @@ export const getProfile = () => {
   }
   })
   .then(handleResponse)
-  .catch(catchError)
 };
 
 /* Получение начальных карточек */
@@ -51,7 +32,6 @@ export const getCards = () => {
   }
   })
   .then(handleResponse)
-  .catch(catchError)
 };
 
 /* Редактирование профиля */
@@ -65,7 +45,6 @@ export const updateProfile = (profileName, profileAbout) => {
     })
   })
   .then(handleResponse)
-  .catch(catchError)
 };
 
 export const updateAvatar = (avatarURL) => {
@@ -77,7 +56,6 @@ export const updateAvatar = (avatarURL) => {
     })
   })
   .then(handleResponse)
-  .catch(catchError)
 }
 
 /* Добавление карточки */
@@ -91,7 +69,6 @@ export const addCardAPI = (cardName, cardLink) => {
     })
   })
     .then(handleResponse)
-    .catch(catchError)
 }
 
 /* Удаление карточки */
@@ -113,7 +90,6 @@ export const addCardLike = (cardID) => {
     }
   })
   .then(handleResponse)
-  .catch(catchError)
 }
 
 export const removeCardLike = (cardID) => {
@@ -124,5 +100,4 @@ export const removeCardLike = (cardID) => {
     }
   })
   .then(handleResponse)
-  .catch(catchError)
 }
