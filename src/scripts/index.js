@@ -9,7 +9,6 @@ import {deleteCardAPI, getProfile, getCards, updateProfile, addCardAPI, addCardL
 const cardList = document.querySelector('.places__list');
 
 /* Логика попапа*/
-const popupCreateCard = document.querySelector('.popup_type_new-card');
 const btnOpenPopupCreateCard = document.querySelector('.profile__add-button');
 const btnsClosePopups = document.querySelectorAll('.popup__close');
 
@@ -91,10 +90,6 @@ function likeHandler(likeBtn, cardID, cardLikesCounter) {
   }
 }
 
-/* Открытие попапа добавление карточки */
-btnOpenPopupCreateCard.addEventListener('click', function() {
-  openPopup(popupCreateCard);
-});
 
 /* Закрытие попапов по крестику */
 btnsClosePopups.forEach(btn => {
@@ -140,13 +135,20 @@ const showProgressBtn = (status, buttonElement) => {
   }
 }
 
+/* Открытие попапа добавление карточки */
+const popupCreateCard = document.querySelector('.popup_type_new-card');
+btnOpenPopupCreateCard.addEventListener('click', function() {
+  openPopup(popupCreateCard);
+});
+
 /* Кнопка добавления карточки */
 const btnAdd = popupCreateCard.querySelector('.popup__button');
 const imgName = popupCreateCard.querySelector('.popup__input_type_card-name');
 const imgURL = popupCreateCard.querySelector('.popup__input_type_url');
+const formCreateCard = popupCreateCard.querySelector('.popup__form');
 
 /* Добавление карточки */
-btnAdd.addEventListener('click', function(evt) {
+formCreateCard.addEventListener('submit', function(evt) {
   evt.preventDefault();
 
   const cardData = {link: imgURL.value, name: imgName.value};
@@ -175,8 +177,8 @@ btnAdd.addEventListener('click', function(evt) {
 const btnEditProfile = document.querySelector('.profile__edit-button');
 const popupEditProfile = document.querySelector('.popup_type_edit');
 
-const popupEditProfile_nameValue = document.querySelector('.popup__input_type_name');
-const popupEditProfile_jobDesc = document.querySelector('.popup__input_type_description');
+const popupEditProfile_nameValue = popupEditProfile.querySelector('.popup__input_type_name');
+const popupEditProfile_jobDesc = popupEditProfile.querySelector('.popup__input_type_description');
 
 btnEditProfile.addEventListener('click', function() {
   openPopup(popupEditProfile);
@@ -185,9 +187,10 @@ btnEditProfile.addEventListener('click', function() {
   popupEditProfile_jobDesc.value = profileJobDesc.textContent;
 });
 
+const editProfileForm = popupEditProfile.querySelector('.popup__form');
 const btnSaveNewProfile = popupEditProfile.querySelector('.popup__button');
 
-btnSaveNewProfile.addEventListener('click', function(event) {
+editProfileForm.addEventListener('submit', function(event) {
   event.preventDefault();
   showProgressBtn("loading", btnSaveNewProfile);
 
@@ -212,8 +215,10 @@ profileImg.addEventListener('click', function(event) {
   openPopup(popupEditProfileAvatar);
 });
 
+const editAvatarForm = popupEditProfileAvatar.querySelector('.popup__form');
+
 const btnUpdateProfileAvatar = popupEditProfileAvatar.querySelector('.popup__button');
-btnUpdateProfileAvatar.addEventListener('click', (event) => {
+editAvatarForm.addEventListener('submit', (event) => {
   event.preventDefault();
   showProgressBtn("loading", btnUpdateProfileAvatar);
   
