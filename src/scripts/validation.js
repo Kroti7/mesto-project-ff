@@ -64,4 +64,4 @@ const enableValidation = (object) => {
   })
 }
 
-export {enableValidation};
+export {enableValidation, disableButton};

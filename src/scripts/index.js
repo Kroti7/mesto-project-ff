@@ -3,7 +3,7 @@ import '../pages/index.css';
 // import initialCards from './cards-default.js';
 import {createCard} from './cards-logic.js';
 import {openPopup, closePopup} from './modal.js';
-import {enableValidation} from './validation.js';
+import {enableValidation, disableButton} from './validation.js';
 import {deleteCardAPI, getProfile, getCards, updateProfile, addCardAPI, addCardLike, removeCardLike, updateAvatar} from './server-api.js';
 
 const cardList = document.querySelector('.places__list');
@@ -164,6 +164,7 @@ formCreateCard.addEventListener('submit', function(evt) {
       const popupToClose = btnAdd.closest('.popup');
       showProgressBtn("success", btnAdd);
       setTimeout(closePopup, 1500, popupToClose);
+      setTimeout(disableButton, 1500, btnAdd);
     })
     .catch((err) => {
       console.log(err);
@@ -177,14 +178,14 @@ formCreateCard.addEventListener('submit', function(evt) {
 const btnEditProfile = document.querySelector('.profile__edit-button');
 const popupEditProfile = document.querySelector('.popup_type_edit');
 
-const popupEditProfile_nameValue = popupEditProfile.querySelector('.popup__input_type_name');
-const popupEditProfile_jobDesc = popupEditProfile.querySelector('.popup__input_type_description');
+const popupEditProfilenameValue = popupEditProfile.querySelector('.popup__input_type_name');
+const popupEditProfilejobDesc = popupEditProfile.querySelector('.popup__input_type_description');
 
 btnEditProfile.addEventListener('click', function() {
   openPopup(popupEditProfile);
 
-  popupEditProfile_nameValue.value = profileName.textContent;
-  popupEditProfile_jobDesc.value = profileJobDesc.textContent;
+  popupEditProfilenameValue.value = profileName.textContent;
+  popupEditProfilejobDesc.value = profileJobDesc.textContent;
 });
 
 const editProfileForm = popupEditProfile.querySelector('.popup__form');
@@ -194,11 +195,13 @@ editProfileForm.addEventListener('submit', function(event) {
   event.preventDefault();
   showProgressBtn("loading", btnSaveNewProfile);
 
-  updateProfile(popupEditProfile_nameValue.value, popupEditProfile_jobDesc.value)
+  updateProfile(popupEditProfilenameValue.value, popupEditProfilejobDesc.value)
     .then(() => {
-      profileName.textContent = popupEditProfile_nameValue.value;
-      profileJobDesc.textContent = popupEditProfile_jobDesc.value;
+      profileName.textContent = popupEditProfilenameValue.value;
+      profileJobDesc.textContent = popupEditProfilejobDesc.value;
       showProgressBtn("success", btnSaveNewProfile);
+      const popupToClose = btnSaveNewProfile.closest('.popup');
+      setTimeout(closePopup, 1500, popupToClose);
     })
     .catch((err) => {
       console.log(err);
@@ -228,6 +231,8 @@ editAvatarForm.addEventListener('submit', (event) => {
     .then((updatedProfile) => {
       profileImg.style.backgroundImage = `url(${updatedProfile.avatar})`;
       showProgressBtn("success", btnUpdateProfileAvatar);
+      const popupToClose = btnUpdateProfileAvatar.closest('.popup');
+      setTimeout(closePopup, 1500, popupToClose);
     })
   })
   .catch((err) => {
