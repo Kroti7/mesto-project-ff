@@ -1,6 +1,5 @@
 import '../pages/index.css';
 
-// import initialCards from './cards-default.js';
 import {createCard} from './cards-logic.js';
 import {openPopup, closePopup} from './modal.js';
 import {enableValidation, disableButton} from './validation.js';
@@ -212,7 +211,7 @@ editProfileForm.addEventListener('submit', function(event) {
 
 /* Редактирование аватара  */
 const popupEditProfileAvatar = document.querySelector('.popup_type_upload-avatar');
-const popupEditProfileAvatar_url = popupEditProfileAvatar.querySelector('.popup__input_avatar_url');
+const popupEditProfileAvatarUrl = popupEditProfileAvatar.querySelector('.popup__input_avatar_url');
 
 profileImg.addEventListener('click', function(event) {
   openPopup(popupEditProfileAvatar);
@@ -225,7 +224,7 @@ editAvatarForm.addEventListener('submit', (event) => {
   event.preventDefault();
   showProgressBtn("loading", btnUpdateProfileAvatar);
   
-  updateAvatar(popupEditProfileAvatar_url.value)
+  updateAvatar(popupEditProfileAvatarUrl.value)
   .then(() => {
     getProfile()
     .then((updatedProfile) => {
